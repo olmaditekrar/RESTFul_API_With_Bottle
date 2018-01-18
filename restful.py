@@ -1,7 +1,6 @@
 from bottle import get,run,post,request,delete
 from pymongo import MongoClient
-import pprint
-import json
+
 def get_db(db_name):
     client = MongoClient('localhost:27017')
     db = client[db_name]
@@ -22,17 +21,10 @@ def findMongo(db,query=None):
 def getAll():
     return {'people' : findMongo(db)}
 
-
-
-
-
 @get('/people/<name>')
 def getOne(name):
     the_name = findMongo(db,{'name': name })
     return {'person' : the_name}
-
-
-
 
 @post('/people/')
 def addOne():
@@ -43,10 +35,9 @@ def addOne():
         return {'people' : findMongo(db)}
     else:
         return {'ERROR!':'There is already same record!'}
-
 def insertMongo(db,data):
 
-    if findMongo(db,data) != None:
+    if findMongo(db,{'name': data['name']}) != []:
         print('There is already same record.')
         return False
     else:
@@ -54,19 +45,11 @@ def insertMongo(db,data):
         print(data)
         return True
 
-
-
-
 @delete('/people/<name>')
 def deleteOne(name):
     deleted_person = findMongo(db,{'name':name}) #Searching for name.
-    deleteMongo(data=deleted_person)
+    db.bottleExample.remove({'name':name})
     return {'people' : findMongo(db,None)}
-def deleteMongo(data):
-    db.bottleExample.remove(data)
-
-
-
 
 run(reloader=True, debug= True)
 
